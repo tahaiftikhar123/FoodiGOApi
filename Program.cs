@@ -40,17 +40,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// ✅ CORS – allow any origin for development, but you can restrict later
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-        policy.SetIsOriginAllowed(_ => true)   // allows any origin (including file:// and localhost)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials());
+              .AllowAnyHeader());
 });
 
-// Dependency Injection
+// Dependency Injection (no ambiguity – using the imported namespace)
 builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<TokenServiceInterface, TokenServiceImpl>();
@@ -61,13 +60,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ✅ CORS must be the first middleware after building
 app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    // No HTTPS redirection in development
 }
 else
 {
